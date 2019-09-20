@@ -46,8 +46,8 @@ def insert_todo(request):
         date= request.POST.get('date')
         start_time= request.POST.get('start_time')
         finish_time= request.POST.get('finish_time')
-        category= request.POST.get('name')
-        # category= Category.objects.get(id=3)
+        # category= serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+        category= Category.objects.get(id='id')
 
         todo_instance=Todo()
         todo_instance.title=title
@@ -69,6 +69,25 @@ def update_cat(request):
         id=request.POST.get('id')
         name= request.POST.get('name')
         Category.objects.filter(id=id).update(name=name)
+        return HttpResponse("200")
+    except:
+        return HttpResponse("Not Ok")
+
+@csrf_exempt
+def update_todo(request):
+    try:
+        id=request.POST.get('id')
+        description = request.POST.get('description')
+        avatar = request.POST.get('avatar')
+        priority = request.POST.get('priority')
+        date = request.POST.get('date')
+        start_time = request.POST.get('start_time')
+        finish_time = request.POST.get('finish_time')
+        category = request.POST.get('name')
+        title= request.POST.get('title')
+        Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
+                                          priority=priority, date=date, start_time=start_time, finish_time=finish_time,
+                                          category=category)
         return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
