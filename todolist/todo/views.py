@@ -63,17 +63,16 @@ def insert_todo(request):
     except :
         return HttpResponse("Not ok")
 
-# @csrf_exempt
-# def update_post(request):
-#     try:
-#         id=request.POST.get('id')
-#         title= request.POST.get('title')
-#         description= request.POST.get('description')
-#         Post.objects.filter(id=id).update(title=title, description=description)
-#         return HttpResponse("200")
-#     except:
-#         return HttpResponse("Not Ok")
-#
+@csrf_exempt
+def update_cat(request):
+    try:
+        id=request.POST.get('id')
+        name= request.POST.get('name')
+        Category.objects.filter(id=id).update(name=name)
+        return HttpResponse("200")
+    except:
+        return HttpResponse("Not Ok")
+
 @csrf_exempt
 def delete_cat(request):
     try:
