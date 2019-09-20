@@ -24,6 +24,18 @@ def all_cat(request):
     data= json.dumps(all_cat_json)
     return HttpResponse(data)
 
+
+@csrf_exempt
+def insert_cat(request):
+    try:
+        name=request.POST.get('name')
+        cat_instance = Category()
+        cat_instance.name = name
+        cat_instance.save()
+        return HttpResponse("200")
+    except:
+        return HttpResponse("Not ok")
+
 @csrf_exempt
 def insert_todo(request):
     try:
@@ -34,7 +46,8 @@ def insert_todo(request):
         date= request.POST.get('date')
         start_time= request.POST.get('start_time')
         finish_time= request.POST.get('finish_time')
-        category= request.POST.get('category')
+        category= request.POST.get('name')
+        # category= Category.objects.get(id=3)
 
         todo_instance=Todo()
         todo_instance.title=title
@@ -61,12 +74,22 @@ def insert_todo(request):
 #     except:
 #         return HttpResponse("Not Ok")
 #
-# @csrf_exempt
-# def delete_post(request):
-#     try:
-#         id=request.POST.get('id')
-#
-#         Post.objects.filter(id=id).delete()
-#         return HttpResponse("200")
-#     except:
-#         return HttpResponse("Not Ok")
+@csrf_exempt
+def delete_cat(request):
+    try:
+        id=request.POST.get('id')
+
+        Category.objects.filter(id=id).delete()
+        return HttpResponse("200")
+    except:
+        return HttpResponse("Not Ok")
+
+@csrf_exempt
+def delete_todo(request):
+    try:
+        id=request.POST.get('id')
+
+        Todo.objects.filter(id=id).delete()
+        return HttpResponse("200")
+    except:
+        return HttpResponse("Not Ok")
