@@ -148,12 +148,8 @@ def insert_todo(request):
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
         todo_instance.category=category
-
-        if Todo.objects.filter(title=title).exists():
-            return HttpResponse ("there is duplicate value for Category")
-        else:
-            todo_instance.save()
-            return HttpResponse("200")
+        todo_instance.save()
+        return HttpResponse("200")
     except :
         return HttpResponse("Not ok")
 
@@ -163,11 +159,8 @@ def update_cat(request):
     try:
         id=request.POST.get('id')
         name= request.POST.get('name')
-        if Category.objects.filter(name=name).exists():
-            return HttpResponse ("there is duplicate value for Category")
-        else:
-            Category.objects.filter(id=id).update(name=name)
-            return HttpResponse("200")
+        Category.objects.filter(id=id).update(name=name)
+        return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
 
@@ -175,7 +168,6 @@ def update_cat(request):
 def update_todo(request):
     try:
         id=request.POST.get('id')
-        title= request.POST.get('title')
         description = request.POST.get('description')
         avatar = request.POST.get('avatar')
         priority = request.POST.get('priority')
@@ -184,10 +176,8 @@ def update_todo(request):
         start_time = request.POST.get('start_time')
         finish_time = request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
-        if Todo.objects.filter(title=title).exists():
-            return HttpResponse ("there is duplicate value for Category")
-        else:
-            Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
+        title= request.POST.get('title')
+        Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                           priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
                                           category=category)
         return HttpResponse("200")
