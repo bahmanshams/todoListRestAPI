@@ -43,6 +43,18 @@ def all_todo_filtered_cat(request):
     except:
         return  HttpResponse("Not Ok")
 
+@csrf_exempt
+def all_todo_filtered_status(request):
+    try:
+        status = request.POST.get('status')
+        all_todo= Todo.objects.filter(status=status)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+
+    except:
+        return  HttpResponse("Not Ok")
 
 @csrf_exempt
 def all_todo_filtered_date(request):
@@ -77,6 +89,7 @@ def insert_todo(request):
         avatar= request.POST.get('avatar')
         priority= request.POST.get('priority')
         date= request.POST.get('date')
+        status= request.POST.get('status')
         start_time= request.POST.get('start_time')
         finish_time= request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
@@ -87,6 +100,7 @@ def insert_todo(request):
         todo_instance.avatar=avatar
         todo_instance.priority=priority
         todo_instance.date=date
+        todo_instance.status=status
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
         todo_instance.category=category
@@ -114,12 +128,13 @@ def update_todo(request):
         avatar = request.POST.get('avatar')
         priority = request.POST.get('priority')
         date = request.POST.get('date')
+        status = request.POST.get('status')
         start_time = request.POST.get('start_time')
         finish_time = request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
         title= request.POST.get('title')
         Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
-                                          priority=priority, date=date, start_time=start_time, finish_time=finish_time,
+                                          priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
                                           category=category)
         return HttpResponse("200")
     except:

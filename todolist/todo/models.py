@@ -12,10 +12,16 @@ class Todo(models.Model):
         ('M', 'Medium'),
         ('L', 'Low'),
     )
+    status = (
+        ('A', 'Active'),
+        ('P', 'Pendig'),
+        ('D', 'Done'),
+    )
     title=models.CharField(max_length=50, null=False)
     description=models.CharField(max_length=200, null=True, blank=True)
     avatar=models.ImageField(upload_to='./images', null=True, blank=True)
     priority = models.CharField(max_length=1, choices=priority)
+    status = models.CharField(max_length=1, choices=status, default="A")
     date = models.DateField()
     start_time = models.TimeField(null=True, blank=True)
     finish_time = models.TimeField(null=True, blank=True)

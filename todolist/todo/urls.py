@@ -5,6 +5,7 @@ urlpatterns = [
     path('all_todo/',views.all_todo, name='all_todo'),
     path('all_todo_filtered_cat/',views.all_todo_filtered_cat, name='all_todo_filtered_cat'),
     path('all_todo_filtered_date/',views.all_todo_filtered_date, name='all_todo_filtered_date'),
+    path('all_todo_filtered_status/',views.all_todo_filtered_status, name='all_todo_filtered_status'),
     path('all_cat/',views.all_cat, name='all_cat'),
     path('insert_todo/',views.insert_todo, name='insert_todo'),
     path('insert_cat/',views.insert_cat, name='insert_cat'),
