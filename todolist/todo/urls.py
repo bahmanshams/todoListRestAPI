@@ -3,6 +3,9 @@ from . import views
 
 urlpatterns = [
     path('all_todo/',views.all_todo, name='all_todo'),
+    path('all_todo_filtered_today/',views.all_todo_filtered_today, name='all_todo_filtered_today'),
+    path('all_todo_filtered_yesterday/',views.all_todo_filtered_yesterday, name='all_todo_filtered_yesterday'),
+    path('all_todo_filtered_tomorrow/',views.all_todo_filtered_tomorrow, name='all_todo_filtered_tomorrow'),
     path('all_todo_filtered_cat/',views.all_todo_filtered_cat, name='all_todo_filtered_cat'),
     path('all_todo_filtered_date/',views.all_todo_filtered_date, name='all_todo_filtered_date'),
     path('all_todo_filtered_status/',views.all_todo_filtered_status, name='all_todo_filtered_status'),

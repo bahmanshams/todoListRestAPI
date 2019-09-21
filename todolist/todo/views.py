@@ -1,6 +1,8 @@
+import datetime
 import json
 
 from django.core import serializers
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -33,15 +35,54 @@ def all_cat(request):
 @csrf_exempt
 def all_todo_filtered_cat(request):
     try:
-        id = request.POST.get('category_id')
-        all_todo= Todo.objects.filter(category=id)
+        current_Date = datetime.datetime.today()
+        all_todo = Todo.objects.filter(date=current_Date)
         all_todo_serialized=serializers.serialize('json', all_todo)
         all_todo_json=json.loads(all_todo_serialized)
         data= json.dumps(all_todo_json)
         return HttpResponse(data)
-
     except:
-        return  HttpResponse("Not Ok")
+        return HttpResponse("Not Ok")
+
+@csrf_exempt
+def all_todo_filtered_today(request):
+    try:
+        current_Date = datetime.datetime.today()
+        all_todo = Todo.objects.filter(date=current_Date)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def all_todo_filtered_yesterday(request):
+    try:
+        previous_day_date = datetime.datetime.today() - datetime.timedelta(days=1)
+        all_todo = Todo.objects.filter(date=previous_day_date)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+
+@csrf_exempt
+def all_todo_filtered_tomorrow(request):
+    try:
+        next_day_date = datetime.datetime.today() + datetime.timedelta(days=1)
+        print(next_day_date)
+        all_todo = Todo.objects.filter(date=next_day_date)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+
+
 
 @csrf_exempt
 def all_todo_filtered_status(request):
@@ -73,11 +114,14 @@ def all_todo_filtered_date(request):
 @csrf_exempt
 def insert_cat(request):
     try:
-        name=request.POST.get('name')
+        name = request.POST.get('name')
         cat_instance = Category()
         cat_instance.name = name
-        cat_instance.save()
-        return HttpResponse("200")
+        if Category.objects.filter(name=name).exists():
+            return HttpResponse ("there is duplicate value for Category")
+        else:
+            cat_instance.save()
+            return HttpResponse("200")
     except:
         return HttpResponse("Not ok")
 
@@ -104,8 +148,12 @@ def insert_todo(request):
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
         todo_instance.category=category
-        todo_instance.save()
-        return HttpResponse("200")
+
+        if Todo.objects.filter(title=title).exists():
+            return HttpResponse ("there is duplicate value for Category")
+        else:
+            todo_instance.save()
+            return HttpResponse("200")
     except :
         return HttpResponse("Not ok")
 
@@ -115,8 +163,11 @@ def update_cat(request):
     try:
         id=request.POST.get('id')
         name= request.POST.get('name')
-        Category.objects.filter(id=id).update(name=name)
-        return HttpResponse("200")
+        if Category.objects.filter(name=name).exists():
+            return HttpResponse ("there is duplicate value for Category")
+        else:
+            Category.objects.filter(id=id).update(name=name)
+            return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
 
@@ -124,6 +175,7 @@ def update_cat(request):
 def update_todo(request):
     try:
         id=request.POST.get('id')
+        title= request.POST.get('title')
         description = request.POST.get('description')
         avatar = request.POST.get('avatar')
         priority = request.POST.get('priority')
@@ -132,8 +184,10 @@ def update_todo(request):
         start_time = request.POST.get('start_time')
         finish_time = request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
-        title= request.POST.get('title')
-        Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
+        if Todo.objects.filter(title=title).exists():
+            return HttpResponse ("there is duplicate value for Category")
+        else:
+            Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                           priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
                                           category=category)
         return HttpResponse("200")
