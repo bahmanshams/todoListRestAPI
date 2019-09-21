@@ -148,8 +148,15 @@ def insert_todo(request):
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
         todo_instance.category=category
-        todo_instance.save()
-        return HttpResponse("200")
+        all=Todo.objects.filter(date=date)
+        if start_time== finish_time:
+            return HttpResponse("finish time should be greater than start time")
+        #
+        # for task in all:
+        #     if start_time>= all.start_time and start_time<=all.finish_time:
+        else:
+            todo_instance.save()
+            return HttpResponse("200")
     except :
         return HttpResponse("Not ok")
 
@@ -177,10 +184,13 @@ def update_todo(request):
         finish_time = request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
         title= request.POST.get('title')
-        Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
+        if start_time == finish_time:
+            return HttpResponse("finish time should be greater than start time")
+        else:
+            Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                           priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
                                           category=category)
-        return HttpResponse("200")
+            return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
 
