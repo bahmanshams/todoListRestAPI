@@ -7,23 +7,56 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Todo, Category
 
-
+##  ____________________________________________VIEW _________________________________________
 @csrf_exempt
 def all_todo(request):
-    all_todo=Todo.objects.all()
-    all_todo_serialized=serializers.serialize('json', all_todo)
-    all_todo_json=json.loads(all_todo_serialized)
-    data= json.dumps(all_todo_json)
-    return HttpResponse(data)
+    try:
+        all_todo=Todo.objects.all()
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
 
 @csrf_exempt
 def all_cat(request):
-    all_cat=Category.objects.all()
-    all_cat_serialized=serializers.serialize('json', all_cat)
-    all_cat_json=json.loads(all_cat_serialized)
-    data= json.dumps(all_cat_json)
-    return HttpResponse(data)
+    try:
+        all_cat=Category.objects.all()
+        all_cat_serialized=serializers.serialize('json', all_cat)
+        all_cat_json=json.loads(all_cat_serialized)
+        data= json.dumps(all_cat_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+## ________________________________________FILTERED VIEW ________________________________________
+@csrf_exempt
+def all_todo_filtered_cat(request):
+    try:
+        id = request.POST.get('category_id')
+        all_todo= Todo.objects.filter(category=id)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
 
+    except:
+        return  HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def all_todo_filtered_date(request):
+    try:
+        date = request.POST.get('date')
+        all_todo= Todo.objects.filter(date=date)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+
+    except:
+        return  HttpResponse("Not Ok")
+## ______________________________________________INSERT_______________________________________________
 
 @csrf_exempt
 def insert_cat(request):
@@ -46,8 +79,7 @@ def insert_todo(request):
         date= request.POST.get('date')
         start_time= request.POST.get('start_time')
         finish_time= request.POST.get('finish_time')
-        # category= serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-        category= Category.objects.get(id='id')
+        category= Category.objects.get(id=request.POST.get('category_id'))
 
         todo_instance=Todo()
         todo_instance.title=title
@@ -63,6 +95,7 @@ def insert_todo(request):
     except :
         return HttpResponse("Not ok")
 
+## ______________________________________________________________UPDATE______________
 @csrf_exempt
 def update_cat(request):
     try:
@@ -83,7 +116,7 @@ def update_todo(request):
         date = request.POST.get('date')
         start_time = request.POST.get('start_time')
         finish_time = request.POST.get('finish_time')
-        category = request.POST.get('name')
+        category= Category.objects.get(id=request.POST.get('category_id'))
         title= request.POST.get('title')
         Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                           priority=priority, date=date, start_time=start_time, finish_time=finish_time,
@@ -92,6 +125,7 @@ def update_todo(request):
     except:
         return HttpResponse("Not Ok")
 
+## _________________________________________________DELETE________________________________________
 @csrf_exempt
 def delete_cat(request):
     try:
