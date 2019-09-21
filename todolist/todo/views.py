@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import json
 
@@ -66,6 +67,51 @@ def all_todo_filtered_yesterday(request):
         all_todo_json=json.loads(all_todo_serialized)
         data= json.dumps(all_todo_json)
         return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def all_todo_filtered_current_week(request):
+    try:
+        start_day_of_week=5
+        d = datetime.datetime.today().weekday()
+        delta_d=d-start_day_of_week
+        if delta_d==0:
+            start_date_of_week= datetime.date.today()
+            finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+        elif delta_d==1:
+            start_date_of_week= datetime.date.today()-datetime.timedelta(days=1)
+            finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+        elif delta_d == -5:
+            start_date_of_week = datetime.date.today() - datetime.timedelta(days=2)
+            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+        elif delta_d == -4:
+            start_date_of_week = datetime.date.today() - datetime.timedelta(days=3)
+            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+        elif delta_d == -3:
+            start_date_of_week = datetime.date.today() - datetime.timedelta(days=4)
+            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+        elif delta_d == -2:
+            start_date_of_week = datetime.date.today() - datetime.timedelta(days=5)
+            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+        elif delta_d == -1:
+            start_date_of_week = datetime.date.today() - datetime.timedelta(days=6)
+            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+            print(start_date_of_week, finish_date_of_week)
+
+        all_todo = Todo.objects.filter(date__gt=start_date_of_week) and Todo.objects.filter(date__lt=finish_date_of_week)
+        all_todo_serialized = serializers.serialize('json', all_todo)
+        all_todo_json = json.loads(all_todo_serialized)
+        data = json.dumps(all_todo_json)
+        return HttpResponse(data)
+
     except:
         return HttpResponse("Not Ok")
 
