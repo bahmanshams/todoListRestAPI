@@ -192,6 +192,7 @@ def insert_todo(request):
         status= request.POST.get('status')
         start_time= request.POST.get('start_time')
         finish_time= request.POST.get('finish_time')
+        progress= request.POST.get('progress')
         category= Category.objects.get(id=request.POST.get('category_id'))
 
         todo_instance=Todo()
@@ -203,6 +204,7 @@ def insert_todo(request):
         todo_instance.status=status
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
+        todo_instance.progress=progress
         todo_instance.category=category
 
         # time validation
@@ -251,13 +253,14 @@ def update_todo(request):
         start_time = request.POST.get('start_time')
         finish_time = request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
+        progress= request.POST.get('progress')
         title= request.POST.get('title')
         if start_time == finish_time:
             return HttpResponse("finish time should be greater than start time")
         else:
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                           priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
-                                          category=category)
+                                          progress=progress, category=category)
             return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
