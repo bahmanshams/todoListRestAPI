@@ -3,14 +3,13 @@ import datetime
 import json
 
 from django.core import serializers
-from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import render
-
 from django.views.decorators.csrf import csrf_exempt
-from .models import Todo, Category
+from .models import Todo, Category, Subset
 
-#v _____________________________________________________________________________functions_________________________________________
+#___________________________________________________functions__________________________________________________
+
+
 def todo_insert_validation(start_time, finish_time,date):
 
     if start_time == finish_time:
@@ -41,6 +40,50 @@ def todo_insert_validation(start_time, finish_time,date):
             return overlap
 
 
+def curent_week_calc():
+    start_day_of_week = 5
+    d = datetime.datetime.today().weekday()
+    delta_d = d - start_day_of_week
+    if delta_d == 0:
+        start_date_of_week = datetime.date.today()
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return(start_date_of_week, finish_date_of_week)
+    elif delta_d == 1:
+        start_date_of_week = datetime.date.today() - datetime.timedelta(days=1)
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return(start_date_of_week, finish_date_of_week)
+    elif delta_d == -5:
+        start_date_of_week = datetime.date.today() - datetime.timedelta(days=2)
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return(start_date_of_week, finish_date_of_week)
+    elif delta_d == -4:
+        start_date_of_week = datetime.date.today() - datetime.timedelta(days=3)
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return(start_date_of_week, finish_date_of_week)
+    elif delta_d == -3:
+        start_date_of_week = datetime.date.today() - datetime.timedelta(days=4)
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return(start_date_of_week, finish_date_of_week)
+    elif delta_d == -2:
+        start_date_of_week = datetime.date.today() - datetime.timedelta(days=5)
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return(start_date_of_week, finish_date_of_week)
+    elif delta_d == -1:
+        start_date_of_week = datetime.date.today() - datetime.timedelta(days=6)
+        finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        return (start_date_of_week, finish_date_of_week)
+
+
+def next_week_calc():
+    start_date_of_week=curent_week_calc()[1]+datetime.timedelta(days=1)
+    finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+    return (start_date_of_week, finish_date_of_week)
+
+
+def last_week_calc():
+    finish_date_of_week=curent_week_calc()[0]-datetime.timedelta(days=1)
+    start_date_of_week = finish_date_of_week - datetime.timedelta(days=6)
+    return (start_date_of_week, finish_date_of_week)
 ##  ____________________________________________VIEW _________________________________________
 @csrf_exempt
 def all_todo(request):
@@ -53,6 +96,19 @@ def all_todo(request):
     except:
         return HttpResponse("Not Ok")
 
+
+@csrf_exempt
+def all_subset(request):
+    try:
+        all_sub=Subset.objects.all()
+        all_sub_serialized=serializers.serialize('json', all_sub)
+        all_sub_json=json.loads(all_sub_serialized)
+        data= json.dumps(all_sub_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+
+
 @csrf_exempt
 def all_cat(request):
     try:
@@ -64,17 +120,31 @@ def all_cat(request):
     except:
         return HttpResponse("Not Ok")
 ## ________________________________________FILTERED VIEW ________________________________________
+
+
 @csrf_exempt
 def all_todo_filtered_cat(request):
     try:
-        current_Date = datetime.datetime.today()
-        all_todo = Todo.objects.filter(date=current_Date)
+        category_id = request.POST.get('category_id')
+        all_todo = Todo.objects.filter(category=category_id)
         all_todo_serialized=serializers.serialize('json', all_todo)
         all_todo_json=json.loads(all_todo_serialized)
         data= json.dumps(all_todo_json)
         return HttpResponse(data)
     except:
         return HttpResponse("Not Ok")
+
+@csrf_exempt
+def all_subset_filtered_todo(request):
+    try:
+
+        all_sub_serialized=serializers.serialize('json', all_todo)
+        all_sub_json=json.loads( all_sub_serialized)
+        data= json.dumps(all_sub_json)
+        return HttpResponse(data)
+    except:
+        return HttpResponse("Not Ok")
+
 
 @csrf_exempt
 def all_todo_filtered_today(request):
@@ -105,56 +175,51 @@ def all_todo_filtered_yesterday(request):
 @csrf_exempt
 def all_todo_filtered_current_week(request):
     try:
-        day= datetime.datetime.today()+datetime.timedelta(days=2)
-        day_of_week = day.weekday()
-
-        to_beginning_of_week = datetime.timedelta(days=day_of_week)
-        beginning_of_week = day - to_beginning_of_week
-
-        to_end_of_week = datetime.timedelta(days=6 - day_of_week)
-        end_of_week = day + to_end_of_week
-
-        return HttpResponse( end_of_week)
-        # start_day_of_week=5
-        # d = datetime.datetime.today().weekday()
-        # delta_d=d-start_day_of_week
-        # if delta_d==0:
-        #     start_date_of_week= datetime.date.today()
-        #     finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-        # elif delta_d==1:
-        #     start_date_of_week= datetime.date.today()-datetime.timedelta(days=1)
-        #     finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-        # elif delta_d == -5:
-        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=2)
-        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-        # elif delta_d == -4:
-        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=3)
-        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-        # elif delta_d == -3:
-        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=4)
-        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-        # elif delta_d == -2:
-        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=5)
-        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-        # elif delta_d == -1:
-        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=6)
-        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-        #     print(start_date_of_week, finish_date_of_week)
-
-        # all_todo = Todo.objects.filter(date__gt=start_date_of_week) and Todo.objects.filter(date__lt=finish_date_of_week)
-        # all_todo_serialized = serializers.serialize('json', all_todo)
-        # all_todo_json = json.loads(all_todo_serialized)
-        # data = json.dumps(all_todo_json)
-        # return HttpResponse(data)
+        start_date_of_week=curent_week_calc()[0]
+        finish_date_of_week=curent_week_calc()[1]
+        print(start_date_of_week,finish_date_of_week)
+        all_todo = Todo.objects.filter(date__gte=start_date_of_week , date__lte=finish_date_of_week)
+        all_todo_serialized = serializers.serialize('json', all_todo)
+        all_todo_json = json.loads(all_todo_serialized)
+        data = json.dumps(all_todo_json)
+        return HttpResponse(data)
 
     except:
         return HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def all_todo_filtered_next_week(request):
+    try:
+        print("hello")
+        start_date_of_week=next_week_calc()[0]
+        finish_date_of_week=next_week_calc()[1]
+        print(start_date_of_week,finish_date_of_week)
+        all_todo = Todo.objects.filter(date__gte=start_date_of_week , date__lte=finish_date_of_week)
+        all_todo_serialized = serializers.serialize('json', all_todo)
+        all_todo_json = json.loads(all_todo_serialized)
+        data = json.dumps(all_todo_json)
+        return HttpResponse(data)
+
+    except:
+        return HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def all_todo_filtered_last_week(request):
+    try:
+        start_date_of_week=last_week_calc()[0]
+        finish_date_of_week=last_week_calc()[1]
+        print(start_date_of_week,finish_date_of_week)
+        all_todo = Todo.objects.filter(date__gte=start_date_of_week , date__lte=finish_date_of_week)
+        all_todo_serialized = serializers.serialize('json', all_todo)
+        all_todo_json = json.loads(all_todo_serialized)
+        data = json.dumps(all_todo_json)
+        return HttpResponse(data)
+
+    except:
+        return HttpResponse("Not Ok")
+
 
 @csrf_exempt
 def all_todo_filtered_tomorrow(request):
@@ -167,7 +232,6 @@ def all_todo_filtered_tomorrow(request):
         return HttpResponse(data)
     except:
         return HttpResponse("Not Ok")
-
 
 
 @csrf_exempt
@@ -183,6 +247,7 @@ def all_todo_filtered_status(request):
     except:
         return  HttpResponse("Not Ok")
 
+
 @csrf_exempt
 def all_todo_filtered_date(request):
     try:
@@ -195,7 +260,23 @@ def all_todo_filtered_date(request):
 
     except:
         return  HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def all_todo_filtered_date_range(request):
+    try:
+        date1 = request.POST.get('date1')
+        date2 = request.POST.get('date2')
+        all_todo= Todo.objects.filter(date__gte=date1 , date__lte=date2)
+        all_todo_serialized=serializers.serialize('json', all_todo)
+        all_todo_json=json.loads(all_todo_serialized)
+        data= json.dumps(all_todo_json)
+        return HttpResponse(data)
+
+    except:
+        return  HttpResponse("Not Ok")
 ## ______________________________________________INSERT_______________________________________________
+
 
 @csrf_exempt
 def insert_cat(request):
@@ -211,6 +292,7 @@ def insert_cat(request):
     except:
         return HttpResponse("Not ok")
 
+
 @csrf_exempt
 def insert_todo(request):
     try:
@@ -222,6 +304,7 @@ def insert_todo(request):
         status= request.POST.get('status')
         start_time= request.POST.get('start_time')
         finish_time= request.POST.get('finish_time')
+        due_date= request.POST.get('due_date')
         progress= request.POST.get('progress')
         category= Category.objects.get(id=request.POST.get('category_id'))
 
@@ -234,6 +317,7 @@ def insert_todo(request):
         todo_instance.status=status
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
+        todo_instance.due_date_time=due_date
         todo_instance.progress=progress
         todo_instance.category=category
 
@@ -249,7 +333,32 @@ def insert_todo(request):
     except :
         return HttpResponse("Not ok")
 
-## ______________________________________________________________UPDATE______________
+
+@csrf_exempt
+def insert_subset(request):
+    try:
+        title= request.POST.get('title')
+        priority= request.POST.get('priority')
+        status= request.POST.get('status')
+        todo= request.POST.get('todo_id')
+        print(title,todo)
+
+        subset_instance=Subset()
+        subset_instance.title=title
+        subset_instance.priority=priority
+        subset_instance.status=status
+        subset_instance.todo=todo
+        print()
+        subset_instance.save()
+        return HttpResponse("200")
+
+    except :
+        return HttpResponse("Not ok")
+
+
+## ________________________________________UPDATE_______________________________________________
+
+
 @csrf_exempt
 def update_cat(request):
     try:
@@ -260,6 +369,7 @@ def update_cat(request):
     except:
         return HttpResponse("Not Ok")
 
+
 @csrf_exempt
 def update_todo(request):
     try:
@@ -269,6 +379,7 @@ def update_todo(request):
         priority = request.POST.get('priority')
         date = request.POST.get('date')
         status = request.POST.get('status')
+        due_date= request.POST.get('due_date')
         start_time = request.POST.get('start_time')
         finish_time = request.POST.get('finish_time')
         category= Category.objects.get(id=request.POST.get('category_id'))
@@ -279,18 +390,20 @@ def update_todo(request):
         elif progress== "100":
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                               priority=priority, date=date, status="D", start_time=start_time,
-                                              finish_time=finish_time,
+                                              finish_time=finish_time,due_date=due_date,
                                               progress=progress, category=category)
             return HttpResponse("200")
         else:
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                               priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
-                                              progress=progress, category=category)
+                                              due_date=due_date,progress=progress, category=category)
             return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
 
 ## _________________________________________________DELETE________________________________________
+
+
 @csrf_exempt
 def delete_cat(request):
     try:
@@ -300,6 +413,7 @@ def delete_cat(request):
         return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
+
 
 @csrf_exempt
 def delete_todo(request):

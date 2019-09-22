@@ -16,6 +16,13 @@ class Todo(models.Model):
         ('A', 'Active'),
         ('P', 'Pendig'),
         ('D', 'Done'),
+
+    )
+    due_date = (
+        ('R', 'Regular'),
+        ('O', 'Overdue'),
+        ('N', 'NearOverdue'),
+
     )
     title=models.CharField(max_length=50, null=False)
     description=models.CharField(max_length=200, null=True, blank=True)
@@ -25,10 +32,18 @@ class Todo(models.Model):
     date = models.DateField()
     start_time = models.TimeField(null=True, blank=True)
     finish_time = models.TimeField(null=True, blank=True)
+    due_date = models.CharField(max_length=1, choices=due_date, default="R")
     progress = models.IntegerField(null=True, blank=True, default=0)
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.title)+" "+str(self.description)
+
+
+
+class Subset(Todo):
+    todo= models.ForeignKey('Todo', related_name='+', on_delete=models.CASCADE)
+    def __str__(self):
+        return str(self.title)
 
 
