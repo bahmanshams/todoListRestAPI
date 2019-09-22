@@ -10,6 +10,37 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Todo, Category
 
+#v _____________________________________________________________________________functions_________________________________________
+def todo_insert_validation(start_time, finish_time,date):
+
+    if start_time == finish_time:
+        overlap = True
+        return overlap
+    elif start_time > finish_time:
+        overlap = True
+        return overlap
+    elif Todo.objects.filter(date=date).exists():
+        all = Todo.objects.filter(date=date)
+        for task in all:
+            task.start_time=str(task.start_time)
+            task.finish_time=str(task.finish_time)
+            # inner limitations
+            if start_time > task.start_time and start_time <task.finish_time:
+                overlap=True
+                return overlap
+            #inner limitations
+            elif finish_time >task.start_time and finish_time <task.finish_time:
+                overlap=True
+                return overlap
+            # outer limitations
+            elif start_time < task.start_time and finish_time > task.finish_time:
+                overlap=True
+                return overlap
+        else:
+            overlap = False
+            return overlap
+
+
 ##  ____________________________________________VIEW _________________________________________
 @csrf_exempt
 def all_todo(request):
@@ -129,7 +160,6 @@ def all_todo_filtered_current_week(request):
 def all_todo_filtered_tomorrow(request):
     try:
         next_day_date = datetime.datetime.today() + datetime.timedelta(days=1)
-        print(next_day_date)
         all_todo = Todo.objects.filter(date=next_day_date)
         all_todo_serialized=serializers.serialize('json', all_todo)
         all_todo_json=json.loads(all_todo_serialized)
@@ -208,25 +238,14 @@ def insert_todo(request):
         todo_instance.category=category
 
         # time validation
-        if start_time == finish_time:
-            return HttpResponse("finish time should be greater than start time")
-        elif start_time > finish_time:
-            return HttpResponse("start time should be less than finish time")
-        elif Todo.objects.filter(date=date).exists():
-            all = Todo.objects.filter(date=date)
-            for task in all:
-                task.start_time=str(task.start_time)
-                task.finish_time=str(task.finish_time)
-                if start_time > task.start_time and start_time <task.finish_time:
-                    return HttpResponse("interupted limitation for start_time >= task.start_time ")
-                elif finish_time >task.start_time and finish_time <task.finish_time:
-                    return HttpResponse("interupted limitation for finish_time > =task.start_time")
-                elif start_time < task.start_time and finish_time > task.finish_time:
-                    return HttpResponse("outer limitation")
+        overlap=todo_insert_validation(start_time, finish_time, date)
+        print(overlap)
+        if overlap == True:
+            return HttpResponse("Overlapped")
         else:
-            print("else")
             todo_instance.save()
             return HttpResponse("200")
+
     except :
         return HttpResponse("Not ok")
 
@@ -258,15 +277,15 @@ def update_todo(request):
         if start_time == finish_time:
             return HttpResponse("finish time should be greater than start time")
         elif progress== "100":
-            print("100")
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                               priority=priority, date=date, status="D", start_time=start_time,
                                               finish_time=finish_time,
                                               progress=progress, category=category)
+            return HttpResponse("200")
         else:
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
-                                          priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
-                                          progress=progress, category=category)
+                                              priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
+                                              progress=progress, category=category)
             return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
