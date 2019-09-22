@@ -257,6 +257,12 @@ def update_todo(request):
         title= request.POST.get('title')
         if start_time == finish_time:
             return HttpResponse("finish time should be greater than start time")
+        elif progress== "100":
+            print("100")
+            Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
+                                              priority=priority, date=date, status="D", start_time=start_time,
+                                              finish_time=finish_time,
+                                              progress=progress, category=category)
         else:
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                           priority=priority, date=date,status=status, start_time=start_time, finish_time=finish_time,
