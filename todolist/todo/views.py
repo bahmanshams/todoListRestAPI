@@ -74,43 +74,53 @@ def all_todo_filtered_yesterday(request):
 @csrf_exempt
 def all_todo_filtered_current_week(request):
     try:
-        start_day_of_week=5
-        d = datetime.datetime.today().weekday()
-        delta_d=d-start_day_of_week
-        if delta_d==0:
-            start_date_of_week= datetime.date.today()
-            finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
-        elif delta_d==1:
-            start_date_of_week= datetime.date.today()-datetime.timedelta(days=1)
-            finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
-        elif delta_d == -5:
-            start_date_of_week = datetime.date.today() - datetime.timedelta(days=2)
-            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
-        elif delta_d == -4:
-            start_date_of_week = datetime.date.today() - datetime.timedelta(days=3)
-            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
-        elif delta_d == -3:
-            start_date_of_week = datetime.date.today() - datetime.timedelta(days=4)
-            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
-        elif delta_d == -2:
-            start_date_of_week = datetime.date.today() - datetime.timedelta(days=5)
-            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
-        elif delta_d == -1:
-            start_date_of_week = datetime.date.today() - datetime.timedelta(days=6)
-            finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
-            print(start_date_of_week, finish_date_of_week)
+        day= datetime.datetime.today()+datetime.timedelta(days=2)
+        day_of_week = day.weekday()
 
-        all_todo = Todo.objects.filter(date__gt=start_date_of_week) and Todo.objects.filter(date__lt=finish_date_of_week)
-        all_todo_serialized = serializers.serialize('json', all_todo)
-        all_todo_json = json.loads(all_todo_serialized)
-        data = json.dumps(all_todo_json)
-        return HttpResponse(data)
+        to_beginning_of_week = datetime.timedelta(days=day_of_week)
+        beginning_of_week = day - to_beginning_of_week
+
+        to_end_of_week = datetime.timedelta(days=6 - day_of_week)
+        end_of_week = day + to_end_of_week
+
+        return HttpResponse( end_of_week)
+        # start_day_of_week=5
+        # d = datetime.datetime.today().weekday()
+        # delta_d=d-start_day_of_week
+        # if delta_d==0:
+        #     start_date_of_week= datetime.date.today()
+        #     finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+        # elif delta_d==1:
+        #     start_date_of_week= datetime.date.today()-datetime.timedelta(days=1)
+        #     finish_date_of_week= start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+        # elif delta_d == -5:
+        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=2)
+        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+        # elif delta_d == -4:
+        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=3)
+        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+        # elif delta_d == -3:
+        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=4)
+        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+        # elif delta_d == -2:
+        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=5)
+        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+        # elif delta_d == -1:
+        #     start_date_of_week = datetime.date.today() - datetime.timedelta(days=6)
+        #     finish_date_of_week = start_date_of_week + datetime.timedelta(days=6)
+        #     print(start_date_of_week, finish_date_of_week)
+
+        # all_todo = Todo.objects.filter(date__gt=start_date_of_week) and Todo.objects.filter(date__lt=finish_date_of_week)
+        # all_todo_serialized = serializers.serialize('json', all_todo)
+        # all_todo_json = json.loads(all_todo_serialized)
+        # data = json.dumps(all_todo_json)
+        # return HttpResponse(data)
 
     except:
         return HttpResponse("Not Ok")
@@ -194,13 +204,25 @@ def insert_todo(request):
         todo_instance.start_time=start_time
         todo_instance.finish_time=finish_time
         todo_instance.category=category
-        all=Todo.objects.filter(date=date)
-        if start_time== finish_time:
+
+        # time validation
+        if start_time == finish_time:
             return HttpResponse("finish time should be greater than start time")
-        #
-        # for task in all:
-        #     if start_time>= all.start_time and start_time<=all.finish_time:
+        elif start_time > finish_time:
+            return HttpResponse("start time should be less than finish time")
+        elif Todo.objects.filter(date=date).exists():
+            all = Todo.objects.filter(date=date)
+            for task in all:
+                task.start_time=str(task.start_time)
+                task.finish_time=str(task.finish_time)
+                if start_time > task.start_time and start_time <task.finish_time:
+                    return HttpResponse("interupted limitation for start_time >= task.start_time ")
+                elif finish_time >task.start_time and finish_time <task.finish_time:
+                    return HttpResponse("interupted limitation for finish_time > =task.start_time")
+                elif start_time < task.start_time and finish_time > task.finish_time:
+                    return HttpResponse("outer limitation")
         else:
+            print("else")
             todo_instance.save()
             return HttpResponse("200")
     except :

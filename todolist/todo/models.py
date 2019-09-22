@@ -25,6 +25,7 @@ class Todo(models.Model):
     date = models.DateField()
     start_time = models.TimeField(null=True, blank=True)
     finish_time = models.TimeField(null=True, blank=True)
+    progress = models.IntegerField(null=True, blank=True, default=0)
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
