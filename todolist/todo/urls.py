@@ -3,6 +3,9 @@ from . import views
 
 urlpatterns = [
     path('all_todo/',views.all_todo, name='all_todo'),
+    path('all_todo_one_view/',views.all_todo_one_view, name='all_todo_one_view'),
+    path('all_subset_one_view/',views.all_subset_one_view, name='all_subset_one_view'),
+    path('all_cat_one_view/',views.all_cat_one_view, name='all_cat_one_view'),
     path('all_subset/',views.all_subset, name='all_subset'),
     path('all_subset_filtered_todo/',views.all_subset_filtered_todo, name='all_subset_filtered_todo'),
     path('all_todo_filtered_today/',views.all_todo_filtered_today, name='all_todo_filtered_today'),

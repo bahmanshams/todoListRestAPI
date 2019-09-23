@@ -2,9 +2,11 @@ from django.db import models
 
 
 class Category(models.Model):
-   name=models.CharField(max_length=100, null=False, blank=False)
-   def __str__(self):
-       return str(self.name)
+    name = models.CharField(max_length=100, null=False, blank=False)
+
+    def __str__(self):
+        return str(self.name)
+
 
 class Todo(models.Model):
     priority = (
@@ -24,20 +26,21 @@ class Todo(models.Model):
         ('N', 'NearOverdue'),
 
     )
-    title=models.CharField(max_length=50, null=False, blank=False)
-    description=models.CharField(max_length=200, null=True, blank=True)
-    avatar=models.ImageField(upload_to='./images', null=True, blank=True)
-    priority = models.CharField(max_length=1, choices=priority,default="M")
+    title = models.CharField(max_length=50, null=False, blank=False)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    avatar = models.ImageField(upload_to='./images', null=True, blank=True)
+    priority = models.CharField(max_length=1, choices=priority, default="M")
     status = models.CharField(max_length=1, choices=status, default="A")
     date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(null=True, blank=True)
     finish_time = models.TimeField(null=True, blank=True)
     due_date = models.CharField(max_length=1, choices=due_date, default="R")
     progress = models.IntegerField(null=True, blank=True, default=0)
-    category=models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.title)+" "+str(self.description)
+        return str(self.title) + " " + str(self.description) + " " + str(self.status) + " " + str(self.progress)
+
 
 class Subset(models.Model):
     status = (
@@ -54,8 +57,7 @@ class Subset(models.Model):
     status = models.CharField(max_length=1, choices=status, default="A")
     priority = models.CharField(max_length=1, choices=priority, default='M')
     progress = models.IntegerField(null=True, blank=True, default=0)
-    todo= models.ForeignKey('Todo', related_name='+', on_delete=models.CASCADE)
+    todo = models.ForeignKey('Todo', related_name='+', on_delete=models.CASCADE)
+
     def __str__(self):
-        return str(self.title)
-
-
+        return str(self.title)+ " "+str(self.status)+ " "+str(self.priority)+ " "+str(self.progress)+ " "+str(self.todo)
