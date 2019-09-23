@@ -1,6 +1,8 @@
 import calendar
 import datetime
 import json
+import time
+from datetime import datetime
 
 from django.core import serializers
 from django.http import HttpResponse
@@ -9,9 +11,7 @@ from .models import Todo, Category, Subset
 
 #___________________________________________________functions__________________________________________________
 
-
 def todo_insert_validation(start_time, finish_time,date):
-
     if start_time == finish_time:
         overlap = True
         return overlap
@@ -21,18 +21,18 @@ def todo_insert_validation(start_time, finish_time,date):
     elif Todo.objects.filter(date=date).exists():
         all = Todo.objects.filter(date=date)
         for task in all:
-            task.start_time=str(task.start_time)
-            task.finish_time=str(task.finish_time)
+            start_time = datetime.strptime(start_time, '%H:%M:%S').time()
+            finish_time = datetime.strptime(finish_time, '%H:%M:%S').time()
             # inner limitations
-            if start_time > task.start_time and start_time <task.finish_time:
+            if start_time >= task.start_time and start_time <= task.finish_time:
                 overlap=True
                 return overlap
             #inner limitations
-            elif finish_time >task.start_time and finish_time <task.finish_time:
+            elif finish_time >= task.start_time and finish_time <= task.finish_time:
                 overlap=True
                 return overlap
             # outer limitations
-            elif start_time < task.start_time and finish_time > task.finish_time:
+            elif start_time <= task.start_time and finish_time >= task.finish_time:
                 overlap=True
                 return overlap
         else:
@@ -177,7 +177,6 @@ def all_todo_filtered_current_week(request):
     try:
         start_date_of_week=curent_week_calc()[0]
         finish_date_of_week=curent_week_calc()[1]
-        print(start_date_of_week,finish_date_of_week)
         all_todo = Todo.objects.filter(date__gte=start_date_of_week , date__lte=finish_date_of_week)
         all_todo_serialized = serializers.serialize('json', all_todo)
         all_todo_json = json.loads(all_todo_serialized)
@@ -191,10 +190,8 @@ def all_todo_filtered_current_week(request):
 @csrf_exempt
 def all_todo_filtered_next_week(request):
     try:
-        print("hello")
         start_date_of_week=next_week_calc()[0]
         finish_date_of_week=next_week_calc()[1]
-        print(start_date_of_week,finish_date_of_week)
         all_todo = Todo.objects.filter(date__gte=start_date_of_week , date__lte=finish_date_of_week)
         all_todo_serialized = serializers.serialize('json', all_todo)
         all_todo_json = json.loads(all_todo_serialized)
@@ -210,7 +207,6 @@ def all_todo_filtered_last_week(request):
     try:
         start_date_of_week=last_week_calc()[0]
         finish_date_of_week=last_week_calc()[1]
-        print(start_date_of_week,finish_date_of_week)
         all_todo = Todo.objects.filter(date__gte=start_date_of_week , date__lte=finish_date_of_week)
         all_todo_serialized = serializers.serialize('json', all_todo)
         all_todo_json = json.loads(all_todo_serialized)
@@ -323,7 +319,6 @@ def insert_todo(request):
 
         # time validation
         overlap=todo_insert_validation(start_time, finish_time, date)
-        print(overlap)
         if overlap == True:
             return HttpResponse("Overlapped")
         else:
@@ -336,24 +331,20 @@ def insert_todo(request):
 
 @csrf_exempt
 def insert_subset(request):
-    try:
         title= request.POST.get('title')
         priority= request.POST.get('priority')
         status= request.POST.get('status')
-        todo= request.POST.get('todo_id')
-        print(title,todo)
+        todo= Todo.objects.get(id=request.POST.get('todo_id'))
 
         subset_instance=Subset()
         subset_instance.title=title
         subset_instance.priority=priority
         subset_instance.status=status
         subset_instance.todo=todo
-        print()
         subset_instance.save()
         return HttpResponse("200")
 
-    except :
-        return HttpResponse("Not ok")
+
 
 
 ## ________________________________________UPDATE_______________________________________________

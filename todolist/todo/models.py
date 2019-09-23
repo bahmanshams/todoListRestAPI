@@ -39,9 +39,20 @@ class Todo(models.Model):
     def __str__(self):
         return str(self.title)+" "+str(self.description)
 
-
-
-class Subset(Todo):
+class Subset(models.Model):
+    status = (
+        ('A', 'Active'),
+        ('P', 'Pendig'),
+        ('D', 'Done'),
+    )
+    priority = (
+        ('H', 'High'),
+        ('M', 'Medium'),
+        ('L', 'Low'),
+    )
+    title = models.CharField(max_length=50, null=False)
+    status = models.CharField(max_length=1, choices=status, default="A")
+    priority = models.CharField(max_length=1, choices=priority, default='M')
     todo= models.ForeignKey('Todo', related_name='+', on_delete=models.CASCADE)
     def __str__(self):
         return str(self.title)
