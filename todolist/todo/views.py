@@ -347,6 +347,7 @@ def insert_todo(request):
 
 @csrf_exempt
 def insert_subset(request):
+    try:
         title= request.POST.get('title')
         priority= request.POST.get('priority')
         status= request.POST.get('status')
@@ -357,9 +358,15 @@ def insert_subset(request):
         subset_instance.title=title
         subset_instance.priority=priority
         subset_instance.status=status
+        subset_instance.progress=progress
         subset_instance.todo=todo
-        subset_instance.save()
+        if not title:
+            return HttpResponse("empty")
+        else:
+            subset_instance.save()
         return HttpResponse("200")
+    except:
+        return HttpResponse("Not Ok")
 
 ## ________________________________________UPDATE_______________________________________________
 
@@ -420,11 +427,13 @@ def update_subset(request):
         progress = request.POST.get('progress')
         todo= Subset.objects.get(id=request.POST.get('todo_id'))
 
-        if progress == "100":
+        if not title:
+            return HttpResponse("empty")
+        elif progress == "100":
                  Subset.objects.filter(id=id).update(title=title, priority=priority,progress=progress,status="D",todo=todo)
                  return HttpResponse("200")
         else:
-             Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status="D",
+             Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status=status,
                                                  todo=todo)
              return HttpResponse("200")
 
