@@ -137,8 +137,9 @@ def all_todo_filtered_cat(request):
 @csrf_exempt
 def all_subset_filtered_todo(request):
     try:
-
-        all_sub_serialized=serializers.serialize('json', all_todo)
+        todo_id = request.POST.get('todo_id')
+        all_sub = Subset.objects.filter(todo=todo_id)
+        all_sub_serialized=serializers.serialize('json', all_sub)
         all_sub_json=json.loads( all_sub_serialized)
         data= json.dumps(all_sub_json)
         return HttpResponse(data)

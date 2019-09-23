@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('all_todo/',views.all_todo, name='all_todo'),
     path('all_subset/',views.all_subset, name='all_subset'),
+    path('all_subset_filtered_todo/',views.all_subset_filtered_todo, name='all_subset_filtered_todo'),
     path('all_todo_filtered_today/',views.all_todo_filtered_today, name='all_todo_filtered_today'),
     path('all_todo_filtered_yesterday/',views.all_todo_filtered_yesterday, name='all_todo_filtered_yesterday'),
     path('all_todo_filtered_tomorrow/',views.all_todo_filtered_tomorrow, name='all_todo_filtered_tomorrow'),
