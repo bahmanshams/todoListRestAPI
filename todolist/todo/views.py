@@ -335,6 +335,7 @@ def insert_subset(request):
         title= request.POST.get('title')
         priority= request.POST.get('priority')
         status= request.POST.get('status')
+        progress= request.POST.get('progress')
         todo= Todo.objects.get(id=request.POST.get('todo_id'))
 
         subset_instance=Subset()
@@ -400,9 +401,17 @@ def update_subset(request):
         title= request.POST.get('title')
         priority = request.POST.get('priority')
         status = request.POST.get('status')
+        progress = request.POST.get('progress')
         todo= Subset.objects.get(id=request.POST.get('todo_id'))
-        Subset.objects.filter(id=id).update(title=title, priority=priority,status=status,todo=todo)
-        return HttpResponse("200")
+
+        if progress == "100":
+                 Subset.objects.filter(id=id).update(title=title, priority=priority,progress=progress,status="D",todo=todo)
+                 return HttpResponse("200")
+        else:
+             Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status="D",
+                                                 todo=todo)
+             return HttpResponse("200")
+
     except:
          return HttpResponse("Not Ok")
 

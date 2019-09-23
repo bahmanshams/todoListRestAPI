@@ -53,6 +53,7 @@ class Subset(models.Model):
     title = models.CharField(max_length=50, null=False)
     status = models.CharField(max_length=1, choices=status, default="A")
     priority = models.CharField(max_length=1, choices=priority, default='M')
+    progress = models.IntegerField(null=True, blank=True, default=0)
     todo= models.ForeignKey('Todo', related_name='+', on_delete=models.CASCADE)
     def __str__(self):
         return str(self.title)
