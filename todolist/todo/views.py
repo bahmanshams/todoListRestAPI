@@ -345,9 +345,6 @@ def insert_subset(request):
         subset_instance.save()
         return HttpResponse("200")
 
-
-
-
 ## ________________________________________UPDATE_______________________________________________
 
 
@@ -356,11 +353,14 @@ def update_cat(request):
     try:
         id=request.POST.get('id')
         name= request.POST.get('name')
-        Category.objects.filter(id=id).update(name=name)
-        return HttpResponse("200")
+        if Category.objects.filter(name=name).exists():
+            return HttpResponse("there is duplicate value for Category")
+        else:
+            Category.objects.filter(id=id).update(name=name)
+            return HttpResponse("200")
     except:
-        return HttpResponse("Not Ok")
-
+        return HttpResponse("Not ok")
+        return HttpResponse("200")
 
 @csrf_exempt
 def update_todo(request):
@@ -392,6 +392,19 @@ def update_todo(request):
             return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
+
+@csrf_exempt
+def update_subset(request):
+    try:
+        id=request.POST.get('id')
+        title= request.POST.get('title')
+        priority = request.POST.get('priority')
+        status = request.POST.get('status')
+        todo= Subset.objects.get(id=request.POST.get('todo_id'))
+        Subset.objects.filter(id=id).update(title=title, priority=priority,status=status,todo=todo)
+        return HttpResponse("200")
+    except:
+         return HttpResponse("Not Ok")
 
 ## _________________________________________________DELETE________________________________________
 
