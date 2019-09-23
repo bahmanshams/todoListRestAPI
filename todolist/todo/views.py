@@ -438,3 +438,14 @@ def delete_todo(request):
         return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
+
+
+@csrf_exempt
+def delete_subset(request):
+    try:
+        id=request.POST.get('id')
+
+        Subset.objects.filter(id=id).delete()
+        return HttpResponse("200")
+    except:
+        return HttpResponse("Not Ok")

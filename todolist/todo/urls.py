@@ -24,4 +24,5 @@ urlpatterns = [
     path('update_subset/',views.update_subset, name='update_subset'),
     path('delete_cat/',views.delete_cat, name='delete_cat'),
     path('delete_todo/',views.delete_todo, name='delete_todo'),
+    path('delete_subset/',views.delete_subset, name='delete_subset'),
 ]
