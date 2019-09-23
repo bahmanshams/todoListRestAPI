@@ -29,7 +29,7 @@ def todo_insert_validation(start_time, finish_time,date,title):
             if isinstance(start_time,str):
                 start_time = datetime.strptime(start_time, '%H:%M:%S').time()
                 finish_time = datetime.strptime(finish_time, '%H:%M:%S').time()
-     
+
             if start_time == task.start_time or start_time == task.finish_time:
                 overlap=True
                 return overlap
@@ -308,7 +308,7 @@ def insert_cat(request):
 
 @csrf_exempt
 def insert_todo(request):
-    # try:
+    try:
         title= request.POST.get('title')
         description= request.POST.get('description')
         avatar= request.POST.get('avatar')
@@ -341,8 +341,8 @@ def insert_todo(request):
             todo_instance.save()
             return HttpResponse("200")
 
-    # except :
-    #     return HttpResponse("Not ok")
+    except:
+        return HttpResponse("Not ok")
 
 
 @csrf_exempt
@@ -369,8 +369,10 @@ def update_cat(request):
     try:
         id=request.POST.get('id')
         name= request.POST.get('name')
-        if Category.objects.filter(name=name).exists():
-            return HttpResponse("there is duplicate value for Category")
+        if not name:
+            return HttpResponse("empty")
+        elif Category.objects.filter(name=name).exists():
+                return HttpResponse ("there is duplicate value for Category")
         else:
             Category.objects.filter(id=id).update(name=name)
             return HttpResponse("200")
