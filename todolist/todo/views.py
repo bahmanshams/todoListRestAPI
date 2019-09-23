@@ -11,8 +11,11 @@ from .models import Todo, Category, Subset
 
 #___________________________________________________functions__________________________________________________
 
-def todo_insert_validation(start_time, finish_time,date):
-    if start_time == finish_time:
+def todo_insert_validation(start_time, finish_time,date,title):
+    if not title or not date:
+        overlap=True
+        return overlap
+    elif start_time == finish_time:
         overlap = True
         return overlap
     elif start_time > finish_time:
@@ -21,23 +24,33 @@ def todo_insert_validation(start_time, finish_time,date):
     elif Todo.objects.filter(date=date).exists():
         all = Todo.objects.filter(date=date)
         for task in all:
-            start_time = datetime.strptime(start_time, '%H:%M:%S').time()
-            finish_time = datetime.strptime(finish_time, '%H:%M:%S').time()
-            # inner limitations
-            if start_time >= task.start_time and start_time <= task.finish_time:
+            print(type(start_time))
+            print(type(task.start_time))
+            if isinstance(start_time,str):
+                start_time = datetime.strptime(start_time, '%H:%M:%S').time()
+                finish_time = datetime.strptime(finish_time, '%H:%M:%S').time()
+     
+            if start_time == task.start_time or start_time == task.finish_time:
                 overlap=True
                 return overlap
-            #inner limitations
-            elif finish_time >= task.start_time and finish_time <= task.finish_time:
+                break
+            elif finish_time == task.start_time or finish_time == task.finish_time:
                 overlap=True
                 return overlap
-            # outer limitations
-            elif start_time <= task.start_time and finish_time >= task.finish_time:
+            elif start_time > task.start_time and start_time < task.finish_time:
                 overlap=True
                 return overlap
-        else:
-            overlap = False
-            return overlap
+                #inner limitations
+            elif finish_time > task.start_time and finish_time < task.finish_time:
+                overlap=True
+                return overlap
+                # outer limitations
+            elif start_time < task.start_time and finish_time > task.finish_time:
+                overlap=True
+                return overlap
+            else:
+                overlap = False
+                return overlap
 
 
 def curent_week_calc():
@@ -281,18 +294,21 @@ def insert_cat(request):
         name = request.POST.get('name')
         cat_instance = Category()
         cat_instance.name = name
-        if Category.objects.filter(name=name).exists():
-            return HttpResponse ("there is duplicate value for Category")
+        if not name:
+            return HttpResponse("empty")
+        elif Category.objects.filter(name=name).exists():
+                return HttpResponse ("there is duplicate value for Category")
         else:
-            cat_instance.save()
-            return HttpResponse("200")
+                cat_instance.save()
+                return HttpResponse("200")
+
     except:
         return HttpResponse("Not ok")
 
 
 @csrf_exempt
 def insert_todo(request):
-    try:
+    # try:
         title= request.POST.get('title')
         description= request.POST.get('description')
         avatar= request.POST.get('avatar')
@@ -317,17 +333,16 @@ def insert_todo(request):
         todo_instance.due_date_time=due_date
         todo_instance.progress=progress
         todo_instance.category=category
-
         # time validation
-        overlap=todo_insert_validation(start_time, finish_time, date)
+        overlap=todo_insert_validation(start_time, finish_time, date,title)
         if overlap == True:
-            return HttpResponse("Overlapped")
+            return HttpResponse("plz check the fileds")
         else:
             todo_instance.save()
             return HttpResponse("200")
 
-    except :
-        return HttpResponse("Not ok")
+    # except :
+    #     return HttpResponse("Not ok")
 
 
 @csrf_exempt
@@ -361,7 +376,6 @@ def update_cat(request):
             return HttpResponse("200")
     except:
         return HttpResponse("Not ok")
-        return HttpResponse("200")
 
 @csrf_exempt
 def update_todo(request):
@@ -411,6 +425,7 @@ def update_subset(request):
              Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status="D",
                                                  todo=todo)
              return HttpResponse("200")
+
 
     except:
          return HttpResponse("Not Ok")

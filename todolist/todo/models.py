@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Category(models.Model):
-   name=models.CharField(max_length=100)
+   name=models.CharField(max_length=100, null=False, blank=False)
    def __str__(self):
        return str(self.name)
 
@@ -24,12 +24,12 @@ class Todo(models.Model):
         ('N', 'NearOverdue'),
 
     )
-    title=models.CharField(max_length=50, null=False)
+    title=models.CharField(max_length=50, null=False, blank=False)
     description=models.CharField(max_length=200, null=True, blank=True)
     avatar=models.ImageField(upload_to='./images', null=True, blank=True)
-    priority = models.CharField(max_length=1, choices=priority)
+    priority = models.CharField(max_length=1, choices=priority,default="M")
     status = models.CharField(max_length=1, choices=status, default="A")
-    date = models.DateField()
+    date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(null=True, blank=True)
     finish_time = models.TimeField(null=True, blank=True)
     due_date = models.CharField(max_length=1, choices=due_date, default="R")
