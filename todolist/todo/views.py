@@ -409,6 +409,7 @@ def insert_subset(request):
             return HttpResponse("empty")
         else:
             subset_instance.save()
+
         return HttpResponse("200")
     except:
         return HttpResponse("Not Ok")
@@ -480,14 +481,19 @@ def update_subset(request):
         if not title:
             return HttpResponse("empty")
         elif progress == "100":
-            Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status="D")
             all_sub = Subset.objects.filter(todo=todo)
             count = Subset.objects.filter(todo=todo).count()
+            Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status="D")
+
             for each in all_sub:
                 if each.progress == 100:
                     progress_count = progress_count + 1
                 if progress_count == count:
                     Todo.objects.filter(id=request.POST.get('todo_id')).update(status="D", progress=100)
+                else:
+                    sub_progress = 100 / count
+                    Todo.objects.filter(id=request.POST.get('todo_id')).update(progress=sub_progress*progress_count)
+
             return HttpResponse(todo)
         else:
             Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status=status,
