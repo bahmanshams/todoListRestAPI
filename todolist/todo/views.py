@@ -345,7 +345,12 @@ def insert_cat(request):
             return HttpResponse("there is duplicate value for Category")
         else:
             cat_instance.save()
-            return HttpResponse("200")
+            id=cat_instance.pk
+            all_cat = Category.objects.filter(id=id)
+            all_cat_serialized = serializers.serialize('json', all_cat)
+            all_cat_json = json.loads(all_cat_serialized)
+            data = json.dumps(all_cat_json)
+            return HttpResponse(data)
 
     except:
         return HttpResponse("Not ok")
@@ -384,7 +389,12 @@ def insert_todo(request):
             return HttpResponse("plz check the fileds")
         else:
             todo_instance.save()
-            return HttpResponse("200")
+            id=todo_instance.pk
+            all_todo = Todo.objects.filter(id=id)
+            all_todo_serialized = serializers.serialize('json', all_todo)
+            all_todo_json = json.loads(all_todo_serialized)
+            data = json.dumps(all_todo_json)
+            return HttpResponse(data)
 
     except:
         return HttpResponse("Not ok")
@@ -409,8 +419,12 @@ def insert_subset(request):
             return HttpResponse("empty")
         else:
             subset_instance.save()
-
-        return HttpResponse("200")
+            id = subset_instance.pk
+            all_sub= Subset.objects.filter(id=id)
+            all_sub_serialized = serializers.serialize('json', all_sub)
+            all_sub_json = json.loads(all_sub_serialized)
+            data = json.dumps(all_sub_json)
+            return HttpResponse(data)
     except:
         return HttpResponse("Not Ok")
 
@@ -429,7 +443,11 @@ def update_cat(request):
             return HttpResponse("there is duplicate value for Category")
         else:
             Category.objects.filter(id=id).update(name=name)
-            return HttpResponse("200")
+            all_cat = Category.objects.filter(id=id)
+            all_cat_serialized = serializers.serialize('json', all_cat)
+            all_cat_json = json.loads(all_cat_serialized)
+            data = json.dumps(all_cat_json)
+            return HttpResponse(data)
     except:
         return HttpResponse("Not ok")
 
@@ -456,13 +474,21 @@ def update_todo(request, done=False):
                                               priority=priority, date=date, status="D", start_time=start_time,
                                               finish_time=finish_time, due_date=due_date,
                                               progress=progress, category=category)
-            return HttpResponse("200")
+            all_todo = Todo.objects.filter(id=id)
+            all_todo_serialized = serializers.serialize('json', all_todo)
+            all_todo_json = json.loads(all_todo_serialized)
+            data = json.dumps(all_todo_json)
+            return HttpResponse(data)
         else:
             Todo.objects.filter(id=id).update(title=title, description=description, avatar=avatar,
                                               priority=priority, date=date, status=status, start_time=start_time,
                                               finish_time=finish_time,
                                               due_date=due_date, progress=progress, category=category)
-            return HttpResponse("200")
+            all_todo = Todo.objects.filter(id=id)
+            all_todo_serialized = serializers.serialize('json', all_todo)
+            all_todo_json = json.loads(all_todo_serialized)
+            data = json.dumps(all_todo_json)
+            return HttpResponse(data)
     except:
         return HttpResponse("Not Ok")
 
@@ -494,11 +520,20 @@ def update_subset(request):
                     sub_progress = 100 / count
                     Todo.objects.filter(id=request.POST.get('todo_id')).update(progress=sub_progress*progress_count)
 
-            return HttpResponse(todo)
+            all_sub = Subset.objects.filter(id=id)
+            all_sub_serialized = serializers.serialize('json', all_sub)
+            all_sub_json = json.loads(all_sub_serialized)
+            data = json.dumps(all_sub_json)
+            return HttpResponse(data)
         else:
             Subset.objects.filter(id=id).update(title=title, priority=priority, progress=progress, status=status,
                                                 todo=todo)
-            return HttpResponse("200")
+
+            all_sub = Subset.objects.filter(id=id)
+            all_sub_serialized = serializers.serialize('json', all_sub)
+            all_sub_json = json.loads(all_sub_serialized)
+            data = json.dumps(all_sub_json)
+            return HttpResponse(data)
 
     except:
          return HttpResponse("Not Ok")
